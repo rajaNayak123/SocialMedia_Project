@@ -1,5 +1,5 @@
-import mongoose, { Schema } from "mongoose";
-import { Jwt } from "jsonwebtoken";
+import mongoose from "mongoose";
+import { jwt } from "jsonwebtoken";
 import bcrypt from "bcrypt"; // this npm is used to incrept the password
 const userSchema = new mongoose.Schema({
     username: {
@@ -54,7 +54,7 @@ userSchema.methods.isCorrectPassword = async function () {
 }
 
 userSchema.methods.generateAccessToken = function () {
-    return Jwt.sign(
+    return jwt.sign(
         {
             _id: this._id,
             email: this.email,

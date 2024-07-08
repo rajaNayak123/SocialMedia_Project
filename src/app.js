@@ -13,8 +13,7 @@ app.use(cookieParser())
 import userRouter from './routes/user.routes.js'
 
 // Declear the routes
-app.use('api/v1/users', userRouter)
-
-// 'http://localhost:8080/users/register'
+app.use('/users', userRouter)
 
 export { app };
+

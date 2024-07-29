@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { jwt } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt"; // this npm is used to incrept the password
 const userSchema = new mongoose.Schema({
     username: {
@@ -30,8 +30,8 @@ const userSchema = new mongoose.Schema({
     },
     watchHistory: [
         {
-            type: Schema.Types.ObjectId,
-            ref: "Video"
+            // type: Schema.Types.ObjectId,
+            // ref: "Video"
         }
     ],
     password: {
@@ -49,7 +49,7 @@ userSchema.pre("save", async function (next) {
     next()
 })
 
-userSchema.methods.isCorrectPassword = async function () {
+userSchema.methods.isCorrectPassword = async function (password) {
     return await bcrypt.compare(password, this.password)
 }
 

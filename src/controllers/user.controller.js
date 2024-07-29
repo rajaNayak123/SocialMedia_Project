@@ -1,8 +1,24 @@
 import { asyncHandler } from '../utils/asyncHandler.js'
-import ApiError from '../utils/ApiError.js'
-import User from '../models/user.model.js'
-import uploadCloudinary from '../utils/cloudinary.js'
-import ApiResponse from '../utils/ApiResponse.js'
+import { ApiError } from '../utils/ApiError.js'
+import { User } from '../models/user.model.js'
+import { uploadCloudinary } from '../utils/cloudinary.js'
+import { ApiResponse } from '../utils/ApiResponse.js'
+
+const generateAccessAndRefreshToken = async (userId) => {
+    try {
+        const user = await User.findById(userId)
+        const accessToken = user.generateAccessToken()
+        const refreshToken = user.generateRefreshToken()
+
+        user.refreshToken = refreshToken
+        await user.save({ validateBeforeSave: false })
+
+        return { accessToken, refreshToken }
+
+    } catch (error) {
+        throw new ApiError(500, "something went wrong while generating refresh and access token")
+    }
+}
 
 const registerUser = asyncHandler(async (res, req) => {
     // res.send(200).json({ message: "ok" })
@@ -20,6 +36,7 @@ const registerUser = asyncHandler(async (res, req) => {
 
     // taking details from frontend 
     const { fullname, email, password, username } = res.body;
+
     console.log("email: " + email); // checking what i get
 
 
@@ -36,7 +53,7 @@ const registerUser = asyncHandler(async (res, req) => {
 
     //the user provide mongoose then we can compare them by using findOne/find methods
     // the unique fields are username and email so we can check anyone 
-    const existedUser = User.findOne({
+    const existedUser = await User.findOne({
         $or: [{ username }, { email }]
     })
     if (existedUser) {
@@ -56,33 +73,68 @@ const registerUser = asyncHandler(async (res, req) => {
     // upload the image and avatar into the cloudinary
 
     const cloudAvtar = await uploadCloudinary(avtarLoclapath);
-    const cloudImage = await uploadCloudinary(coverImageLocalpath);
+    // const cloudImage = await uploadCloudinary(coverImageLocalpath);
 
     if (!cloudAvtar) {
         throw new ApiError(400, "avatar file is required")
     }
 
-   const user = await User.create({
+    let cloudImage;
+    if (req.files && Array.isArray(req.files.cloudImage) && req.files.cloudImage.length > 0) {
+        cloudImage = req.files.cloudImage[0].path;
+    }
+    const user = await User.create({
         fullname,
         cloudAvtar: avatar.url,
         cloudImage: cloudImage.url || "",
         email,
         password,
-        username : username.toLowerCase(),
+        username: username.toLowerCase(),
     })
 
     // remove the password and refresh toke using select method it take unnecessary fields
     const userCreated = await User.findById(user._id).select(
         "-password -refreshToken"
     )
-    
-    if(!userCreated){
+
+    if (!userCreated) {
         throw new ApiError(500, "something went wrong during registreing user")
     }
 
     return res.status(201).json(
-        new ApiResponse(201,userCreated, "user registered successfully")
+        new ApiResponse(201, userCreated, "user registered successfully")
     )
+})
+
+const loginUser = asyncHandler(async (req, res) => {
+    // get data from user
+    // username or email
+    // find the user
+    // check the password
+    // access token and refresh token
+    // send cookies
+
+    const { email, username, password } = req.body
+
+    if (!email || !username) {
+        throw new ApiError(400, "email or username is required")
+    }
+
+    const user = await User.findOne({
+        $or: [{ email }, { username }]
+    })
+
+    if (!user) {
+        throw new ApiError(404, "user does not exist")
+    }
+
+    const isPasswordValid = await user.isCorrectPassword(password)
+
+    if (!isPasswordValid) {
+        throw new ApiError(401, "invalid user credentials")
+    }
+
+    const { refreshToken, accessToken } = await generateAccessAndRefreshToken(user._id)
 })
 
 export { registerUser };

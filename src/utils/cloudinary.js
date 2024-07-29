@@ -7,7 +7,7 @@ import fs from 'fs' // node js is provide fs(file system) it help to read write 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_NAME,
     api_key: process.env.API_KEY,
-    api_secret: process.env.API_SECRET  
+    api_secret: process.env.API_SECRET
 });
 
 
@@ -19,7 +19,8 @@ const uploadCloudinary = async (localFilePath) => {
             resource_type: 'auto'
         })
         // file has been successfully uploaded on cloudinary server
-        console.log("file has been uploaded", uploadResult.url);
+        // console.log("file has been uploaded", uploadResult.url);
+        fs.unlinkSync(uploadCloudinary)
         return uploadResult;
     } catch (error) {
         fs.unlinkSync(localFilePath)

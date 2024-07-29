@@ -13,7 +13,7 @@ app.use(cookieParser())
 import userRouter from './routes/user.routes.js'
 
 // Declear the routes
-app.use('/users', userRouter)
+app.use('/users', userRouter) 
 
 export { app };
 

@@ -53,6 +53,7 @@ userSchema.methods.isCorrectPassword = async function (password) {
     return await bcrypt.compare(password, this.password)
 }
 
+//accessToken are temporary credentials that grant access to a protect resourse
 userSchema.methods.generateAccessToken = function () {
     return jwt.sign(
         {
@@ -67,6 +68,8 @@ userSchema.methods.generateAccessToken = function () {
         }
     )
 }
+
+// And refreshToken are used to obtain new accessToken once the current token is expaired
 userSchema.methods.generateRefreshToken = function () {
     jwt.sign(
         {

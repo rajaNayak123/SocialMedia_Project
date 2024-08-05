@@ -6,10 +6,10 @@ import { verfiyJWT } from '../middlewares/auth.middleware.js'
 const router = Router();
 router.route('/register').post(
     // middlewares
-    upload.fields(
+    upload.fields([
         { name: "avatar", maxCount: 1 },
         { name: "coverImage", maxCount: 1 }
-    ),
+    ]),
     registerUser
 )
 router.route('/login').post(loginUser)

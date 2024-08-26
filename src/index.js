@@ -12,7 +12,6 @@ dotenv.config({path: './.env'}) // what is dotenv
 // const envFilePath = join(__dirname, "../.env")
 // dotenv.config({path: envFilePath})
 
-
 connectDB().then(() => {
     app.listen(process.env.PORT || 8000, () => {
         console.log(`server started on port ${process.env.PORT}`)

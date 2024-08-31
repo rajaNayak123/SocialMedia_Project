@@ -30,8 +30,8 @@ const userSchema = new mongoose.Schema({
     },
     watchHistory: [
         {
-            // type: Schema.Types.ObjectId,
-            // ref: "Video"
+            type: Schema.Types.ObjectId,
+            ref: "Video"
         }
     ],
     password: {
@@ -43,12 +43,15 @@ const userSchema = new mongoose.Schema({
     }
 }, { timestamps: true })
 
-userSchema.pre("save", async function (next) {
-    if (!this.modifide("password")) return next();
+
+//pre - it is an methods mongoose,middlware
+userSchema.pre("save", async function (next) {  // we can't use arrow function because arrow function has no 'this' keyword reference
+    if (!this.isModified("password")) return next();
     this.password = await bcrypt.hash(this.password, 10)
     next()
 })
 
+//custom methods
 userSchema.methods.isCorrectPassword = async function (password) {
     return await bcrypt.compare(password, this.password)
 }

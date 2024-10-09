@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt"; // this npm is used to incrept the password
-const userSchema = new mongoose.Schema({
+const { Schema } = mongoose;
+const userSchema = new Schema({
     username: {
         type: String,
         require: true,

@@ -40,8 +40,10 @@ const registerUser = asyncHandler(async (res, req) => {
     // taking details from frontend 
     const { fullname, email, password, username } = res.body;
 
-    console.log("email: " + email); // checking what i get
-
+    console.log("email: " + email); 
+    console.log("fullname: " + fullname); 
+    console.log("password: " + password);
+    console.log("username: " +username);
 
     // validation check the fields are empty or not
 
@@ -67,29 +69,30 @@ const registerUser = asyncHandler(async (res, req) => {
 
     // this files provide multer
     const avtarLoclapath = req.files?.avatar[0]?.path;
-    const coverImageLocalpath = req.files?.coverImage[0]?.path
+    // const coverImageLocalpath = req.files?.coverImage[0]?.path;
+    let coverImageLocalPath = "";
+    if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length>0){
+        coverImageLocalPath = req.files.coverImage[0].path;
+    }
 
     if (!avtarLoclapath) {
         throw new ApiError(400, "avatar file is required")
     }
 
     // upload the image and avatar into the cloudinary
+    const avatar = await uploadCloudinary(avtarLoclapath);
+    const coverImage = await uploadCloudinary(coverImageLocalPath);
 
-    const cloudAvtar = await uploadCloudinary(avtarLoclapath);
     // const cloudImage = await uploadCloudinary(coverImageLocalpath);
-
-    if (!cloudAvtar) {
+    if (!avatar) {
         throw new ApiError(400, "avatar file is required")
     }
 
-    let cloudImage;
-    if (req.files && Array.isArray(req.files.cloudImage) && req.files.cloudImage.length > 0) {
-        cloudImage = req.files.cloudImage[0].path;
-    }
+
     const user = await User.create({
         fullname,
-        cloudAvtar: avatar.url,
-        cloudImage: cloudImage.url || "",
+        avatar: avatar.url,
+        coverImage: coverImage.url || "",
         email,
         password,
         username: username.toLowerCase(),

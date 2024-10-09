@@ -4,11 +4,11 @@ import {upload} from "../middlewares/multer.middleware.js"
 
 import {
     getAllVideos,
-  publishVideos,
-  getVideoById,
-  updateVideo,
-  deleteVideo,
-  togglePublishStatus,
+    publishVideos,
+    getVideoById,
+    updateVideo,
+    deleteVideo,
+    togglePublishStatus,
 } from "../controllers/user.controller.js"
 
 const router = Router()
